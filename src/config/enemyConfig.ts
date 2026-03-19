@@ -16,7 +16,7 @@ export interface EnemyDefinition {
 export const enemyConfig: Record<EnemyArchetype, EnemyDefinition> = {
   grunt: {
     type: "grunt",
-    label: "Grunt",
+    label: "普通感染体",
     color: 0xd85c63,
     radius: 16,
     hp: 42,
@@ -27,7 +27,7 @@ export const enemyConfig: Record<EnemyArchetype, EnemyDefinition> = {
   },
   swift: {
     type: "swift",
-    label: "Swift Hound",
+    label: "迅捷猎犬",
     color: 0xf3b455,
     radius: 13,
     hp: 24,
@@ -38,7 +38,7 @@ export const enemyConfig: Record<EnemyArchetype, EnemyDefinition> = {
   },
   brute: {
     type: "brute",
-    label: "Brute",
+    label: "重甲巨兽",
     color: 0x7a4ee8,
     radius: 22,
     hp: 95,
@@ -49,7 +49,7 @@ export const enemyConfig: Record<EnemyArchetype, EnemyDefinition> = {
   },
   boss: {
     type: "boss",
-    label: "Apex Warden",
+    label: "顶点守卫",
     color: 0x35c6ff,
     radius: 36,
     hp: 900,

@@ -24,7 +24,7 @@ export const weaponConfig = {
 export const weaponDefinitions: Record<WeaponId, WeaponDefinition> = {
   "pulse-rifle": {
     id: "pulse-rifle",
-    name: "Pulse Rifle",
+    name: "脉冲步枪",
     color: 0x7df9c1,
     fireMode: "target",
     cooldown: 0.65,
@@ -38,7 +38,7 @@ export const weaponDefinitions: Record<WeaponId, WeaponDefinition> = {
   },
   "spread-cannon": {
     id: "spread-cannon",
-    name: "Spread Cannon",
+    name: "散射炮",
     color: 0xf6bf5f,
     fireMode: "spread",
     cooldown: 1.05,
@@ -52,7 +52,7 @@ export const weaponDefinitions: Record<WeaponId, WeaponDefinition> = {
   },
   "arc-array": {
     id: "arc-array",
-    name: "Arc Array",
+    name: "弧光阵列",
     color: 0x7a4ee8,
     fireMode: "nova",
     cooldown: 1.8,

@@ -15,7 +15,7 @@ export const waveConfig = {
   phases: [
     {
       id: "opening",
-      label: "Wave 1 - Opening",
+      label: "第 1 波 - 开场压制",
       startsAt: 0,
       spawnRateMultiplier: 0.85,
       hpMultiplier: 1,
@@ -24,7 +24,7 @@ export const waveConfig = {
     },
     {
       id: "pressure",
-      label: "Wave 2 - Pressure",
+      label: "第 2 波 - 压力升高",
       startsAt: 30,
       spawnRateMultiplier: 1,
       hpMultiplier: 1.08,
@@ -33,7 +33,7 @@ export const waveConfig = {
     },
     {
       id: "collapse",
-      label: "Wave 3 - Collapse",
+      label: "第 3 波 - 全面崩压",
       startsAt: 60,
       spawnRateMultiplier: 1.2,
       hpMultiplier: 1.18,
@@ -42,7 +42,7 @@ export const waveConfig = {
     },
     {
       id: "endless",
-      label: "Wave 4 - Endless",
+      label: "第 4 波 - 无尽围猎",
       startsAt: 90,
       spawnRateMultiplier: 1.35,
       hpMultiplier: 1.28,

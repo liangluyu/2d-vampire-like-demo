@@ -16,6 +16,7 @@ export class Enemy {
   public x = 0;
   public y = 0;
   public hp = 0;
+  public maxHp = 0;
   public radius = 0;
   public flashTimer = 0;
   public deathTimer = 0;
@@ -46,7 +47,8 @@ export class Enemy {
     this.x = x;
     this.y = y;
     this.radius = boss ? definition.radius : elite ? definition.radius + 6 : definition.radius;
-    this.hp = definition.hp * hpScale * (boss ? 1.8 : 1);
+    this.maxHp = definition.hp * hpScale * (boss ? 1.8 : 1);
+    this.hp = this.maxHp;
     this.flashTimer = 0;
     this.deathTimer = 0;
     this.splitChildren = this.ability === "split" ? 2 : 0;
@@ -116,6 +118,7 @@ export class Enemy {
   public deactivate(): void {
     this.active = false;
     this.dying = false;
+    this.maxHp = 0;
     this.view.visible = false;
   }
 

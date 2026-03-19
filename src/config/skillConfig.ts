@@ -32,16 +32,16 @@ export interface TemporaryBuffDefinition {
 export const passiveSkillDefinitions: Record<PassiveSkillId, PassiveSkillDefinition> = {
   "glass-cannon": {
     id: "glass-cannon",
-    name: "Glass Cannon",
-    description: "Damage +20%",
+    name: "玻璃大炮",
+    description: "伤害 +20%",
     apply: (player) => {
       player.damage *= 1.2;
     }
   },
   "rapid-loader": {
     id: "rapid-loader",
-    name: "Rapid Loader",
-    description: "Attack Speed +20%",
+    name: "高速装填",
+    description: "攻击速度 +20%",
     apply: (player) => {
       player.attackSpeed *= 1.2;
     }
@@ -51,8 +51,8 @@ export const passiveSkillDefinitions: Record<PassiveSkillId, PassiveSkillDefinit
 export const activeSkillDefinitions: Record<ActiveSkillId, ActiveSkillDefinition> = {
   "nova-burst": {
     id: "nova-burst",
-    name: "Nova Burst",
-    description: "Every few seconds triggers a large area explosion.",
+    name: "新星爆发",
+    description: "每隔一段时间以玩家为中心触发一次大范围爆炸。",
     cooldown: 12,
     radius: 180,
     damageScale: 2.2,
@@ -63,7 +63,7 @@ export const activeSkillDefinitions: Record<ActiveSkillId, ActiveSkillDefinition
 export const temporaryBuffDefinitions: Record<TemporaryBuffId, TemporaryBuffDefinition> = {
   frenzy: {
     id: "frenzy",
-    name: "Frenzy",
+    name: "狂热",
     duration: 8,
     apply: (player) => {
       player.attackSpeed *= 1.45;
@@ -74,7 +74,7 @@ export const temporaryBuffDefinitions: Record<TemporaryBuffId, TemporaryBuffDefi
   },
   "power-surge": {
     id: "power-surge",
-    name: "Power Surge",
+    name: "超载",
     duration: 8,
     apply: (player) => {
       player.damage *= 1.35;

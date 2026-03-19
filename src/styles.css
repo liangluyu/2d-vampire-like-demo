@@ -55,6 +55,44 @@ body {
   pointer-events: none;
 }
 
+.boss-panel {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 220px));
+  padding: 12px 16px;
+  z-index: 2;
+}
+
+.boss-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.boss-label,
+.boss-hp {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.boss-bar {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.boss-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #35c6ff 0%, #7a4ee8 100%);
+  transition: width 120ms linear;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -263,6 +301,15 @@ body {
 @media (max-width: 780px) {
   .hud {
     flex-direction: column;
+  }
+
+  .boss-panel {
+    left: 18px;
+    right: 18px;
+    top: auto;
+    bottom: 18px;
+    width: auto;
+    transform: none;
   }
 
   .hud-main {

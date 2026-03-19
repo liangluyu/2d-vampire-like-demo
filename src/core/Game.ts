@@ -18,6 +18,7 @@ import { SkillSystem } from "../systems/SkillSystem";
 import { WaveSystem } from "../systems/WaveSystem";
 import { enemyConfig } from "../config/enemyConfig";
 import type { PickupKind } from "../config/pickupConfig";
+import { BossSystem } from "../systems/BossSystem";
 
 const INITIAL_POOL = {
   enemies: 240,
@@ -55,6 +56,7 @@ export class Game {
   private readonly dropSystem = new DropSystem();
   private readonly skillSystem = new SkillSystem();
   private readonly waveSystem = new WaveSystem();
+  private readonly bossSystem = new BossSystem();
   private paused = false;
   private over = false;
   private elapsed = 0;
@@ -169,6 +171,9 @@ export class Game {
       this.waveSystem.update(this.elapsed, this.isBossAlive(), () => this.spawnBoss());
       this.spawnEnemies(dt, waveState);
       this.combatSystem.update(dt, this.player, this.enemies, (...args) => this.spawnBullet(...args));
+      this.bossSystem.update(dt, this.player, this.enemies, (...args) => this.spawnBullet(...args), (x, y, radius, life, color) =>
+        this.spawnImpact(x, y, radius, life, color)
+      );
       this.skillSystem.update(dt, this.player, this.enemies, (x, y, radius, life, color) => this.spawnImpact(x, y, radius, life, color), (enemy) =>
         this.onEnemyKilled(enemy)
       );
@@ -274,11 +279,12 @@ export class Game {
     damage: number,
     life: number,
     pierce: number,
-    color: number
+    color: number,
+    hostile = false
   ): void {
     const bullet = this.bullets.find((entry) => !entry.active);
     if (bullet) {
-      bullet.spawn(x, y, vx, vy, radius, damage, life, pierce, color);
+      bullet.spawn(x, y, vx, vy, radius, damage, life, pierce, color, hostile);
     }
   }
 
@@ -350,6 +356,18 @@ export class Game {
     if (upgrade.id === "unlock-nova-burst") {
       return !this.skillSystem.hasActiveSkill("nova-burst");
     }
+    if (upgrade.id === "upgrade-pulse-rifle") {
+      return this.combatSystem.canUpgradeWeapon("pulse-rifle");
+    }
+    if (upgrade.id === "upgrade-spread-cannon") {
+      return this.combatSystem.canUpgradeWeapon("spread-cannon");
+    }
+    if (upgrade.id === "upgrade-arc-array") {
+      return this.combatSystem.canUpgradeWeapon("arc-array");
+    }
+    if (upgrade.id === "upgrade-nova-burst") {
+      return this.skillSystem.canUpgradeActiveSkill("nova-burst");
+    }
     return true;
   }
 
@@ -366,13 +384,15 @@ export class Game {
         heal: (amount: number) => this.player.heal(amount)
       },
       unlockWeapon: (weaponId: Parameters<CombatSystem["unlockWeapon"]>[0]) => this.combatSystem.unlockWeapon(weaponId),
+      upgradeWeapon: (weaponId: Parameters<CombatSystem["upgradeWeapon"]>[0]) => this.combatSystem.upgradeWeapon(weaponId),
       unlockPassiveSkill: (skillId: Parameters<SkillSystem["unlockPassiveSkill"]>[0]) => {
         this.skillSystem.unlockPassiveSkill(skillId, this.player);
         target.player.damage = this.player.damage;
         target.player.attackSpeed = this.player.attackSpeed;
         target.player.moveSpeed = this.player.moveSpeed;
       },
-      unlockActiveSkill: (skillId: Parameters<SkillSystem["unlockActiveSkill"]>[0]) => this.skillSystem.unlockActiveSkill(skillId)
+      unlockActiveSkill: (skillId: Parameters<SkillSystem["unlockActiveSkill"]>[0]) => this.skillSystem.unlockActiveSkill(skillId),
+      upgradeActiveSkill: (skillId: Parameters<SkillSystem["upgradeActiveSkill"]>[0]) => this.skillSystem.upgradeActiveSkill(skillId)
     };
     upgrade.apply(target);
     this.player.damage = target.player.damage;
@@ -406,6 +426,7 @@ export class Game {
 
   private renderHud(): void {
     const waveState = this.waveSystem.getWaveState(this.elapsed);
+    const boss = this.enemies.find((enemy) => enemy.active && enemy.isBoss && !enemy.dying) ?? null;
     this.ui.renderStats({
       hp: this.player.hp,
       maxHp: this.player.maxHp,
@@ -421,6 +442,9 @@ export class Game {
       aoeRadius: this.player.aoeRadius,
       waveLabel: waveState.label,
       bossIncoming: waveState.bossIncoming,
+      bossName: boss?.definition.label ?? null,
+      bossHp: boss?.hp ?? 0,
+      bossMaxHp: boss?.maxHp ?? 0,
       weapons: this.combatSystem.getWeaponNames(),
       passiveSkills: this.skillSystem.getPassiveNames(),
       activeSkills: this.skillSystem.getActiveNames(),
