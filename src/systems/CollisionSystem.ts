@@ -13,12 +13,21 @@ export class CollisionSystem {
     enemies: Enemy[],
     bullets: Bullet[],
     orbs: ExpOrb[],
-    spawnImpact: (x: number, y: number, radius: number, life: number) => void,
+    spawnImpact: (x: number, y: number, radius: number, life: number, color?: number) => void,
     onEnemyKilled: (enemy: Enemy) => void,
     onXpCollected: (amount: number) => void
   ): void {
     for (const bullet of bullets) {
       if (!bullet.active) {
+        continue;
+      }
+      if (bullet.hostile) {
+        const hitRadius = bullet.radius + player.radius;
+        if (distanceSquared(bullet, player) <= hitRadius * hitRadius) {
+          player.takeDamage(bullet.damage);
+          spawnImpact(bullet.x, bullet.y, bullet.radius + 10, weaponConfig.impactLife, 0xff5c7a);
+          bullet.deactivate();
+        }
         continue;
       }
       for (const enemy of enemies) {

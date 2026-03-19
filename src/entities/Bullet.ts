@@ -11,6 +11,7 @@ export class Bullet {
   public damage = 0;
   public life = 0;
   public pierceLeft = 0;
+  public hostile = false;
 
   public constructor() {
     this.view = new Graphics();
@@ -25,7 +26,9 @@ export class Bullet {
     radius: number,
     damage: number,
     life: number,
-    pierce: number
+    pierce: number,
+    color: number,
+    hostile = false
   ): void {
     this.active = true;
     this.x = x;
@@ -36,6 +39,7 @@ export class Bullet {
     this.damage = damage;
     this.life = life;
     this.pierceLeft = pierce;
+    this.hostile = hostile;
     this.view.visible = true;
     this.view.scale.set(1);
     this.view.alpha = 1;
@@ -43,7 +47,7 @@ export class Bullet {
       .clear()
       .circle(0, 0, radius)
       .fill(0xf4f7ff)
-      .stroke({ color: 0x7df9c1, width: 2 });
+      .stroke({ color, width: 2 });
     this.syncView();
   }
 
@@ -72,6 +76,7 @@ export class Bullet {
 
   public deactivate(): void {
     this.active = false;
+    this.hostile = false;
     this.view.visible = false;
   }
 

@@ -11,7 +11,7 @@ export class HitEffect {
     this.view.visible = false;
   }
 
-  public spawn(x: number, y: number, radius: number, life: number): void {
+  public spawn(x: number, y: number, radius: number, life: number, color = 0xffffff): void {
     this.active = true;
     this.life = life;
     this.maxLife = life;
@@ -22,7 +22,7 @@ export class HitEffect {
     this.view
       .clear()
       .circle(0, 0, radius)
-      .stroke({ color: 0xffffff, alpha: 0.75, width: 3 });
+      .stroke({ color, alpha: 0.75, width: 3 });
   }
 
   public update(dt: number): void {

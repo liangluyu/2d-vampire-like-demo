@@ -13,6 +13,12 @@ interface StatsSnapshot {
   bulletCount: number;
   pierce: number;
   aoeRadius: number;
+  waveLabel: string;
+  bossIncoming: boolean;
+  weapons: string[];
+  passiveSkills: string[];
+  activeSkills: string[];
+  buffs: string[];
 }
 
 export class GameUI {
@@ -21,6 +27,9 @@ export class GameUI {
   private readonly hpValue: HTMLSpanElement;
   private readonly levelValue: HTMLSpanElement;
   private readonly timeValue: HTMLSpanElement;
+  private readonly waveValue: HTMLSpanElement;
+  private readonly loadoutValue: HTMLDivElement;
+  private readonly buffValue: HTMLDivElement;
   private readonly statValues: Record<string, HTMLSpanElement>;
   private readonly overlay: HTMLDivElement;
   private readonly overlayTitle: HTMLHeadingElement;
@@ -48,18 +57,27 @@ export class GameUI {
         <div class="stat-row"><span>Damage</span><strong id="damage-value"></strong></div>
         <div class="stat-row"><span>Atk Speed</span><strong id="attack-speed-value"></strong></div>
         <div class="stat-row"><span>Move Speed</span><strong id="move-speed-value"></strong></div>
-        <div class="stat-row"><span>Bullets</span><strong id="bullet-count-value"></strong></div>
+        <div class="stat-row"><span>Projectiles</span><strong id="bullet-count-value"></strong></div>
         <div class="stat-row"><span>Pierce</span><strong id="pierce-value"></strong></div>
         <div class="stat-row"><span>AOE</span><strong id="aoe-value"></strong></div>
       </div>
       <div class="health-bar"><div class="health-fill"></div></div>
+      <div class="loadout-block">
+        <div class="loadout-title">Loadout</div>
+        <div class="loadout-value" id="loadout-value"></div>
+      </div>
+      <div class="loadout-block">
+        <div class="loadout-title">Active Buffs</div>
+        <div class="loadout-value" id="buff-value"></div>
+      </div>
     `;
 
     const statusStack = document.createElement("div");
     statusStack.className = "status-stack";
     statusStack.innerHTML = `
-      <section class="panel pill"><span class="label">生存时间</span><span class="value" id="time-value">00:00</span></section>
-      <section class="panel pill"><span class="label">进度</span><span class="value" id="xp-value">1 / 30</span></section>
+      <section class="panel pill"><span class="label">Survival</span><span class="value" id="time-value">00:00</span></section>
+      <section class="panel pill"><span class="label">Progress</span><span class="value" id="xp-value">0 / 30</span></section>
+      <section class="panel pill"><span class="label">Wave</span><span class="value wave-value" id="wave-value">Wave 1</span></section>
     `;
 
     hud.append(hudMain, statusStack);
@@ -79,11 +97,11 @@ export class GameUI {
 
     const restartButton = document.createElement("button");
     restartButton.className = "button";
-    restartButton.textContent = "重新开始";
+    restartButton.textContent = "Restart Run";
     restartButton.addEventListener("click", () => this.onRestart?.());
     const closeButton = document.createElement("button");
     closeButton.className = "button secondary";
-    closeButton.textContent = "停留结算";
+    closeButton.textContent = "Stay Here";
     closeButton.addEventListener("click", () => {
       this.overlay.hidden = true;
     });
@@ -98,6 +116,9 @@ export class GameUI {
     this.hpValue = hudMain.querySelector("#hp-value") as HTMLSpanElement;
     this.levelValue = hudMain.querySelector("#level-value") as HTMLSpanElement;
     this.timeValue = statusStack.querySelector("#time-value") as HTMLSpanElement;
+    this.waveValue = statusStack.querySelector("#wave-value") as HTMLSpanElement;
+    this.loadoutValue = hudMain.querySelector("#loadout-value") as HTMLDivElement;
+    this.buffValue = hudMain.querySelector("#buff-value") as HTMLDivElement;
     this.statValues = {
       xp: statusStack.querySelector("#xp-value") as HTMLSpanElement,
       damage: hudMain.querySelector("#damage-value") as HTMLSpanElement,
@@ -117,6 +138,7 @@ export class GameUI {
     this.hpValue.textContent = `${Math.ceil(stats.hp)} / ${stats.maxHp}`;
     this.levelValue.textContent = `${stats.level}`;
     this.timeValue.textContent = this.formatTime(stats.time);
+    this.waveValue.textContent = stats.bossIncoming ? `${stats.waveLabel} | Boss Soon` : stats.waveLabel;
     this.statValues.xp.textContent = `${stats.xp} / ${stats.xpToNext}`;
     this.statValues.damage.textContent = `${stats.damage.toFixed(0)}`;
     this.statValues.attackSpeed.textContent = `${stats.attackSpeed.toFixed(2)}x`;
@@ -125,13 +147,19 @@ export class GameUI {
     this.statValues.pierce.textContent = `${stats.pierce}`;
     this.statValues.aoe.textContent = stats.aoeRadius > 0 ? `${stats.aoeRadius.toFixed(0)}` : "-";
     this.healthFill.style.width = `${(stats.hp / stats.maxHp) * 100}%`;
+    this.loadoutValue.textContent = [
+      `Weapons: ${stats.weapons.join(", ") || "None"}`,
+      `Passive: ${stats.passiveSkills.join(", ") || "None"}`,
+      `Active: ${stats.activeSkills.join(", ") || "None"}`
+    ].join(" | ");
+    this.buffValue.textContent = stats.buffs.join(", ") || "No temporary buffs";
   }
 
   public showUpgrade(options: UpgradeDefinition[]): void {
     this.overlay.hidden = false;
     this.gameOverActions.hidden = true;
-    this.overlayTitle.textContent = "升级选择";
-    this.overlayDesc.textContent = "战斗暂停中，选择一项强化来塑造这局 build。";
+    this.overlayTitle.textContent = "Level Up";
+    this.overlayDesc.textContent = "Combat paused. Choose one new weapon, skill, or stat upgrade.";
     this.overlayGrid.innerHTML = "";
     for (const option of options) {
       const button = document.createElement("button");
@@ -139,7 +167,7 @@ export class GameUI {
       button.className = "upgrade-card";
       button.innerHTML = `
         <h3>${option.title}</h3>
-        <span>${this.formatCategory(option.category)}</span>
+        <span>${option.category.toUpperCase()}</span>
         <p>${option.description}</p>
       `;
       button.addEventListener("click", () => this.onSelectUpgrade?.(option));
@@ -149,8 +177,8 @@ export class GameUI {
 
   public showGameOver(time: number, level: number): void {
     this.overlay.hidden = false;
-    this.overlayTitle.textContent = "Game Over";
-    this.overlayDesc.textContent = `你存活了 ${this.formatTime(time)}，达到了 Lv.${level}。再来一局尝试更完整的 build。`;
+    this.overlayTitle.textContent = "Run Over";
+    this.overlayDesc.textContent = `You survived ${this.formatTime(time)} and reached Lv.${level}.`;
     this.overlayGrid.innerHTML = "";
     this.gameOverActions.hidden = false;
   }
@@ -164,12 +192,5 @@ export class GameUI {
     const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
     const ss = String(seconds % 60).padStart(2, "0");
     return `${mm}:${ss}`;
-  }
-
-  private formatCategory(category: UpgradeDefinition["category"]): string {
-    if (category === "offense") return "输出";
-    if (category === "utility") return "机动";
-    if (category === "survival") return "生存";
-    return "构筑";
   }
 }

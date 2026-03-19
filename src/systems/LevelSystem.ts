@@ -12,23 +12,23 @@ export class LevelSystem {
     this.xpToNext = levelConfig.baseXp;
   }
 
-  public addXp(amount: number): UpgradeDefinition[] | null {
+  public addXp(amount: number): boolean {
     this.xp += amount;
     if (this.xp < this.xpToNext) {
-      return null;
+      return false;
     }
     this.xp -= this.xpToNext;
     this.level += 1;
     this.xpToNext = Math.floor(levelConfig.baseXp * Math.pow(levelConfig.xpGrowth, this.level - 1));
-    return this.getOptions();
+    return true;
   }
 
-  private getOptions(): UpgradeDefinition[] {
-    const options = [...upgradePool];
+  public getOptions(filter: (upgrade: UpgradeDefinition) => boolean): UpgradeDefinition[] {
+    const pool = upgradePool.filter(filter);
     const picked: UpgradeDefinition[] = [];
-    while (picked.length < levelConfig.optionCount && options.length > 0) {
-      const index = Math.floor(Math.random() * options.length);
-      picked.push(options.splice(index, 1)[0]);
+    while (picked.length < levelConfig.optionCount && pool.length > 0) {
+      const index = Math.floor(Math.random() * pool.length);
+      picked.push(pool.splice(index, 1)[0]);
     }
     return picked;
   }

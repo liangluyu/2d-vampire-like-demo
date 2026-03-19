@@ -132,6 +132,23 @@ body {
   transition: width 120ms linear;
 }
 
+.loadout-block {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.loadout-title {
+  margin-bottom: 6px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loadout-value {
+  color: var(--text);
+  line-height: 1.5;
+}
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -141,6 +158,11 @@ body {
   padding: 24px;
   background: rgba(7, 10, 14, 0.58);
   backdrop-filter: blur(8px);
+}
+
+.wave-value {
+  font-size: 18px;
+  line-height: 1.2;
 }
 
 .overlay[hidden] {
