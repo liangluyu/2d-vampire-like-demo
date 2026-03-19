@@ -1,0 +1,18 @@
+{
+  "name": "2d-vampire-like-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pixi.js": "^8.10.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^7.1.0"
+  }
+}
